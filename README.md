@@ -265,6 +265,8 @@ data   | bool | true:支持，false:不支持
 data | true | string | data | 
 chainid | true | int | 链id | 1,1029
 contract | true | string | 合约地址 | conflux合约地址
+id | true | string | 会员手机号 | 会员手机号
+fromAddress | true | string | msgSender | 会员系统内的个人地址
 
 #### 返回参数:
 
