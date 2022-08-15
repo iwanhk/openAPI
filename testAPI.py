@@ -8,11 +8,12 @@ from rich import pretty
 pretty.install()
 from rich.console import Console 
 from pprint import pprint
-console = Console(style="black on green", stderr=True)
-from rich.panel import Panel
+console = Console(style="white on black", stderr=True)
 
 apiKey = "7956ca03fe44238ef1d254799de1b556"
 apiSecret = "bd09139024cdd3136a4f6cf60038c1194e6641063e413c47f517a579fbb158ba"
+contract_add="cfxtest:acdeym6gccnx752abhpupmmtar5e635uu6xcv2cfgy"
+# contract_add=='cfxtest:acdk44u31uwr42hy4h6ux03r5kw4ffx9ausk8k53kg'
 
 def makeHeader(body):
     sortArgs={}
@@ -56,6 +57,7 @@ def getTransactionByHash(hash):
     body={}
     body['chainid']='1'
     body['hash']= hash
+    body['id']='13911024683'
 
     api_url = "http://35.175.145.216:8087/api/v1/chain/getTransactionByHash"
 
@@ -68,31 +70,51 @@ def getTransactionByHash(hash):
     else:
         print(json)
 
-def dynamicCall(data):
+def writeCall(_from, data):
     body={}
     body['chainid']='1'
     body['data']= data
-    body['fromAddress']='cfxtest:aak9vkaj4cpuwghsn2vpsf7vgpxk80fa6af7w5uu5f'
-    body['contract']='cfxtest:acdk44u31uwr42hy4h6ux03r5kw4ffx9ausk8k53kg'
+    body['fromAddress']=_from
+    body['contract']=contract_add
     body['id']='13911024683'
 
-    api_url = "http://35.175.145.216:8087/api/v1/chain/dynamicCall"
+    api_url = "http://35.175.145.216:8087/api/v1/chain/writeCall"
 
     header= makeHeader(body)
-    print(body)
+    console.print(body, style="bold yellow")
+
     response = requests.post(api_url, params= body, headers=header)
 
     json= response.json()
     if json['success']==True:
         return json['data']
     else:
-        print(json)
+        console.print(json, style="bold red")
+
+def readCall(data):
+    body={}
+    body['chainid']='1'
+    body['data']= data
+    body['contract']=contract_add
+    body['id']='13911024683'
+
+    api_url = "http://35.175.145.216:8087/api/v1/chain/readCall"
+
+    header= makeHeader(body)
+    # print(body)
+    response = requests.get(api_url, params= body, headers=header)
+
+    json= response.json()
+    if json['success']==True:
+        return json['data']
+    else:
+        console.print(json, style="bold red")
 
 def supportsInterface(selector):
     body={}
     body['chainid']='1'
     body['interfaceID']= selector
-    body['contract']='cfxtest:acdk44u31uwr42hy4h6ux03r5kw4ffx9ausk8k53kg'
+    body['contract']=contract_add
 
     api_url = "http://35.175.145.216:8087/api/v1/chain/supportsInterface"
 
@@ -103,14 +125,14 @@ def supportsInterface(selector):
     if json['success']==True:
         return json['data']
     else:
-        print(json)
+        console.print(json, style="bold red")
 
 
 def queryAsset(tokenId):
     body={}
     body['chainid']='1'
     body['tokenId']= tokenId
-    body['contract']='cfxtest:acdk44u31uwr42hy4h6ux03r5kw4ffx9ausk8k53kg'
+    body['contract']=contract_add
 
     api_url = "http://35.175.145.216:8087/api/v1/chain/queryAsset"
 
@@ -121,7 +143,7 @@ def queryAsset(tokenId):
     if json['success']==True:
         return json['data']
     else:
-        print(json)
+        console.print(json, style="bold red")
 
 def queryUser():
     body={}
@@ -136,7 +158,7 @@ def queryUser():
     if json['success']==True:
         return json['data']
     else:
-        print(json)
+        console.print(json, style="bold red")
 
 def createUser():
     body={}
@@ -148,19 +170,19 @@ def createUser():
     # print(f"{header} {body} {api_url}")
     response = requests.post(api_url, params= body, headers=header)
 
-    print(response)
+    # print(response)
     json= response.json()
     if json['success']==True:
         return json['data']
     else:
-        print(json)
+        console.print(json, style="bold red")
 
 if __name__=="__main__":
     while True:
-        choice = input("1) createUser\n2) queryUser\n3) queryAsset\n4) supportsInterface\n5) dynamicCall\n6) getTransactionByHash\nq to exit:\n\n")
+        choice = input("1) createUser\n2) queryUser\n3) queryAsset\n4) supportsInterface\n5) readCall\n6) writeCall\n7) getTransactionReceiptByHash\nq) to exit:\n\n")
 
         commands= choice.split()
-        if commands[0] == "q":
+        if len(commands)== 0 or commands[0] == "q":
             break
         if commands[0] == '1':
             ret= createUser()
@@ -171,7 +193,9 @@ if __name__=="__main__":
         if commands[0] == '4':
             ret= supportsInterface(commands[1])     
         if commands[0] == '5':
-            ret= dynamicCall(commands[1])
+            ret= readCall(commands[1])
         if commands[0] == '6':
+            ret= writeCall(commands[1], commands[2])
+        if commands[0] == '7':
             ret= getTransactionByHash(commands[1])
-        console.print(Panel(str(ret)))
+        console.print(ret, style="white on black")
