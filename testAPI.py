@@ -12,8 +12,12 @@ console = Console(style="white on black", stderr=True)
 
 apiKey = "7956ca03fe44238ef1d254799de1b556"
 apiSecret = "bd09139024cdd3136a4f6cf60038c1194e6641063e413c47f517a579fbb158ba"
-contract_add="cfxtest:acdeym6gccnx752abhpupmmtar5e635uu6xcv2cfgy"
+# contract_add="cfxtest:acdeym6gccnx752abhpupmmtar5e635uu6xcv2cfgy"
+# contract_add='0x05271BB6F2387fbFf5cacdDBCBD5a7C1021A4b11'
 # contract_add=='cfxtest:acdk44u31uwr42hy4h6ux03r5kw4ffx9ausk8k53kg'
+contract_add='cfx:acak9mwwemm4tgvs7j798je832mrptyrpa9d6ea78s'
+# chain_id='5555'
+chain_id='1029'
 
 def makeHeader(body):
     sortArgs={}
@@ -53,9 +57,44 @@ def makeHeader(body):
     # console.print(Panel(header))
     return header
 
+def importAccount(private_key):
+    body={}
+    body['chainid']=chain_id
+    body['privateKey']= private_key
+    body['id']='13911024683'
+
+    api_url = "http://35.175.145.216:8087/api/v1/chain/importAddress"
+
+    header= makeHeader(body)
+    response = requests.post(api_url, params= body, headers=header)
+
+    json= response.json()
+    if json['success']==True:
+        return json['data']
+    else:
+        print(json)
+
+
+def exportAccount(address):
+    body={}
+    body['chainid']=chain_id
+    body['address']= address
+    body['id']='13911024683'
+
+    api_url = "http://35.175.145.216:8087/api/v1/chain/exportAddress"
+
+    header= makeHeader(body)
+    response = requests.get(api_url, params= body, headers=header)
+
+    json= response.json()
+    if json['success']==True:
+        return json['data']
+    else:
+        print(json)
+
 def getTransactionByHash(hash):
     body={}
-    body['chainid']='1'
+    body['chainid']=chain_id
     body['hash']= hash
     body['id']='13911024683'
 
@@ -72,7 +111,7 @@ def getTransactionByHash(hash):
 
 def writeCall(_from, data):
     body={}
-    body['chainid']='1'
+    body['chainid']=chain_id
     body['data']= data
     body['fromAddress']=_from
     body['contract']=contract_add
@@ -93,7 +132,7 @@ def writeCall(_from, data):
 
 def readCall(data):
     body={}
-    body['chainid']='1'
+    body['chainid']=chain_id
     body['data']= data
     body['contract']=contract_add
     body['id']='13911024683'
@@ -112,7 +151,7 @@ def readCall(data):
 
 def supportsInterface(selector):
     body={}
-    body['chainid']='1'
+    body['chainid']=chain_id
     body['interfaceID']= selector
     body['contract']=contract_add
 
@@ -130,7 +169,7 @@ def supportsInterface(selector):
 
 def queryAsset(tokenId):
     body={}
-    body['chainid']='1'
+    body['chainid']=chain_id
     body['tokenId']= tokenId
     body['contract']=contract_add
 
@@ -147,7 +186,7 @@ def queryAsset(tokenId):
 
 def queryUser():
     body={}
-    body['chainid']='1'
+    body['chainid']=chain_id
     body['id']='13911024683'
 
     header= makeHeader(body)
@@ -162,7 +201,7 @@ def queryUser():
 
 def createUser():
     body={}
-    body['chainid']='1'
+    body['chainid']=chain_id
     body['id']='13911024683'
 
     header= makeHeader(body)
@@ -179,7 +218,7 @@ def createUser():
 
 if __name__=="__main__":
     while True:
-        choice = input("1) createUser\n2) queryUser\n3) queryAsset\n4) supportsInterface\n5) readCall\n6) writeCall\n7) getTransactionReceiptByHash\nq) to exit:\n\n")
+        choice = input("1) createUser\n2) queryUser\n3) queryAsset\n4) supportsInterface\n5) readCall\n6) writeCall\n7) getTransactionReceiptByHash\n8) importAccount\n9) exportAccount\nq) to exit:\n\n")
 
         commands= choice.split()
         if len(commands)== 0 or commands[0] == "q":
@@ -198,4 +237,8 @@ if __name__=="__main__":
             ret= writeCall(commands[1], commands[2])
         if commands[0] == '7':
             ret= getTransactionByHash(commands[1])
+        if commands[0] == '8':
+            ret= importAccount(commands[1])
+        if commands[0] == '9':
+            ret= exportAccount(commands[1])
         console.print(ret, style="white on black")
