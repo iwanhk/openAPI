@@ -5,14 +5,15 @@ from datetime import datetime
 import hashlib
 import requests
 import sys
+import os
 
 from rich import print
 from rich import pretty
 pretty.install()
 console = Console(style="white on black", stderr=True)
 
-apiKey = "7956ca03fe44238ef1d254799de1b556"
-apiSecret = "bd09139024cdd3136a4f6cf60038c1194e6641063e413c47f517a579fbb158ba"
+apiKey = os.getenv("ISOTOP_APPKEY")
+apiSecret = os.getenv("ISOTOP_SECRET")
 # contract_add="cfxtest:acdeym6gccnx752abhpupmmtar5e635uu6xcv2cfgy"
 # contract_add='0x05271BB6F2387fbFf5cacdDBCBD5a7C1021A4b11'
 # contract_add=='cfxtest:acdk44u31uwr42hy4h6ux03r5kw4ffx9ausk8k53kg'
