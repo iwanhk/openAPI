@@ -6,6 +6,7 @@ import hashlib
 import requests
 import sys
 import os
+import time
 
 from rich import print
 from rich import pretty
@@ -20,9 +21,14 @@ apiSecret = os.getenv("ISOTOP_SECRET")
 # contract_add = 'cfx:acak9mwwemm4tgvs7j798je832mrptyrpa9d6ea78s'
 contract_add = '0x0FF62a1b950E5dD2CCa4adB03c330679CF3220a5'
 # chain_id='5555'
-chain_id = '12231'
+chain_id = '1224'
 # user_id = '13911024683'
-user_id = '18518517787'
+# user_id = '18518517787'
+# user_id = '13121189506'
+# user_id = '18067008266'
+# user_id = '18886038683'
+user_id = '13911024683'
+operationId=0
 
 
 def makeHeader(body):
@@ -92,6 +98,8 @@ def exportAccount(address):
 
     header = makeHeader(body)
     response = requests.get(api_url, params=body, headers=header)
+    print(header)
+    print(body)
 
     json = response.json()
     if json['success'] == True:
@@ -229,6 +237,28 @@ def createUser():
     else:
         console.print(json, style="bold red")
 
+def mintTicketToAddress(to, tokenId):
+    body = {}
+    body['accountAddress'] = to
+    body['operationId'] = time.asctime()
+    body['contractAddress'] = contract_add
+    body['tokenId'] = tokenId
+    body['chainid'] = chain_id
+
+    #header= makePostHeader(body)
+    api_url = "https://tjtest.pugongyinghulian.com/ticket-api/v1/ticket/mintTicketToAddress"
+    header = makeHeader(body)
+    response = requests.post(api_url, params=body, headers=header)
+
+    json = response.json()
+    # print(json)
+    if json['msg'] == "成功":
+        return json['results']
+    else:
+        console.print(json, style="bold red")   
+        console.print("重新调用本操作请使用operationId：" + body['operationId'], style="bold red") 
+        return None
+
 
 if __name__ == "__main__":
     if len(sys.argv) == 3:
@@ -238,7 +268,7 @@ if __name__ == "__main__":
 
     while True:
         choice = input(
-            "1) createUser\n2) queryUser\n3) queryAsset [tokenId]\n4) supportsInterface [selector]\n5) readCall [data]\n6) writeCall [from, data]\n7) getTransactionReceiptByHash [hash]\n8) importAccount [private-key]\n9) exportAccount [account]\nq) to exit:\n\n")
+            "1) createUser\n2) queryUser\n3) queryAsset [tokenId]\n4) supportsInterface [selector]\n5) readCall [data]\n6) writeCall [from, data]\n7) getTransactionReceiptByHash [hash]\n8) importAccount [private-key]\n9) exportAccount [account]\na) mint a ticket [to] [tokenId]\nq) to exit:\n\n")
 
         commands = choice.split()
         if len(commands) == 0 or commands[0] == "q":
@@ -261,4 +291,6 @@ if __name__ == "__main__":
             ret = importAccount(commands[1])
         if commands[0] == '9':
             ret = exportAccount(commands[1])
+        if commands[0] == 'a' or commands[0] == 'A':
+            ret = mintTicketToAddress(commands[1], commands[2])
         console.print(ret, style="white on black")
