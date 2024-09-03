@@ -19,15 +19,16 @@ apiSecret = os.getenv("ISOTOP_SECRET")
 # contract_add='0x05271BB6F2387fbFf5cacdDBCBD5a7C1021A4b11'
 # contract_add=='cfxtest:acdk44u31uwr42hy4h6ux03r5kw4ffx9ausk8k53kg'
 # contract_add = 'cfx:acak9mwwemm4tgvs7j798je832mrptyrpa9d6ea78s'
-contract_add = '0x0FF62a1b950E5dD2CCa4adB03c330679CF3220a5'
+contract_add = '0x5067CE4dC9a2fb2c3E1898fc24B067cd8d92A000'
 # chain_id='5555'
-chain_id = '1224'
+chain_id = '1226'
 # user_id = '13911024683'
 # user_id = '18518517787'
 # user_id = '13121189506'
 # user_id = '18067008266'
 # user_id = '18886038683'
-user_id = '13911024683'
+# user_id = '13911024683'
+user_id = '18812345678'
 operationId=0
 
 
@@ -69,6 +70,38 @@ def makeHeader(body):
     return header
 
 
+def makeHeader2(body):
+    sortArgs = {}
+    header = {}
+    hash = hashlib.md5()
+
+    # 当前日期和时间
+    now = datetime.timestamp(datetime.now())
+    header['timestamp'] = str(int(now))
+    header['nonce'] = str(int(now*1000000))
+    header['apiKey'] = 'f7166420c811e129716fd2893732e128'
+    sortArgs.update(header)
+    sortArgs.update(body)
+    # print(f"{sortArgs=}")
+
+    content = ''
+    for item in sorted(sortArgs):
+        content += item+sortArgs[item]
+
+    content += '8e7792237deafef05c84e676c9b81408d23c33bbacdb80e136ebe60ca61370ff'
+    # print("-----------------------------"+content)
+
+    hash.update(content.encode(encoding='utf-8'))
+    header["content-type"] = "application/x-www-form-urlencoded"
+    header['sign'] = hash.hexdigest()
+
+    print(header)
+    # print(body)
+    # print(hash.hexdigest())
+    # print(header)
+    # console.print(Panel(header))
+    return header
+
 def importAccount(private_key):
     body = {}
     body['chainid'] = chain_id
@@ -76,7 +109,7 @@ def importAccount(private_key):
     # body['id'] = ''
     body['id'] = user_id
 
-    api_url = "https://www.isotop.top/chain-api/api/v1/chain/importAddress"
+    api_url = "https://www.binghetao.com/chain-api/api/v1/chain/importAddress"
 
     header = makeHeader(body)
     response = requests.post(api_url, params=body, headers=header)
@@ -94,7 +127,7 @@ def exportAccount(address):
     body['address'] = address
     body['id'] = user_id
 
-    api_url = "https://www.isotop.top/chain-api/api/v1/chain/exportAddress"
+    api_url = "https://www.binghetao.com/chain-api/api/v1/chain/exportAddress"
 
     header = makeHeader(body)
     response = requests.get(api_url, params=body, headers=header)
@@ -114,7 +147,7 @@ def getTransactionByHash(hash):
     body['hash'] = hash
     body['id'] = user_id
 
-    api_url = "https://www.isotop.top/chain-api/api/v1/chain/getTransactionByHash"
+    api_url = "https://www.binghetao.com/chain-api/api/v1/chain/getTransactionByHash"
 
     header = makeHeader(body)
     response = requests.get(api_url, params=body, headers=header)
@@ -134,7 +167,7 @@ def writeCall(_from, data):
     body['contract'] = contract_add
     body['id'] = user_id
 
-    api_url = "https://www.isotop.top/chain-api/api/v1/chain/writeCall"
+    api_url = "https://www.binghetao.com/chain-api/api/v1/chain/writeCall"
 
     header = makeHeader(body)
     console.print(body, style="bold yellow")
@@ -155,13 +188,14 @@ def readCall(data):
     body['contract'] = contract_add
     body['id'] = user_id
 
-    api_url = "https://www.isotop.top/chain-api/api/v1/chain/readCall"
+    api_url = "https://www.binghetao.com/chain-api/api/v1/chain/readCall"
 
     header = makeHeader(body)
     # print(body)
     response = requests.get(api_url, params=body, headers=header)
 
     json = response.json()
+    print(response.content)
     if json['success'] == True:
         return json['data']
     else:
@@ -174,7 +208,7 @@ def supportsInterface(erc):
     body['interfaceID'] = erc
     body['contract'] = contract_add
 
-    api_url = "https://www.isotop.top/chain-api/api/v1/chain/supportsInterface"
+    api_url = "https://www.binghetao.com/chain-api/api/v1/chain/supportsInterface"
 
     header = makeHeader(body)
     response = requests.get(api_url, params=body, headers=header)
@@ -192,7 +226,7 @@ def queryAsset(tokenId):
     body['tokenId'] = tokenId
     body['contract'] = contract_add
 
-    api_url = "https://www.isotop.top/chain-api/api/v1/chain/queryAsset"
+    api_url = "https://www.binghetao.com/chain-api/api/v1/chain/queryAsset"
 
     header = makeHeader(body)
     response = requests.get(api_url, params=body, headers=header)
@@ -210,7 +244,7 @@ def queryUser():
     body['id'] = user_id
 
     header = makeHeader(body)
-    api_url = "https://www.isotop.top/chain-api/api/v1/chain/queryUser"
+    api_url = "https://www.binghetao.com/chain-api/api/v1/chain/queryUser"
     response = requests.get(api_url, params=body, headers=header)
 
     json = response.json()
@@ -226,7 +260,7 @@ def createUser():
     body['id'] = user_id
 
     header = makeHeader(body)
-    api_url = "https://www.isotop.top/chain-api/api/v1/chain/create"
+    api_url = "https://www.binghetao.com/chain-api/api/v1/chain/create"
     print(f"{header} {body} {api_url}")
     response = requests.post(api_url, params=body, headers=header)
 
@@ -247,12 +281,12 @@ def mintTicketToAddress(to, tokenId):
 
     #header= makePostHeader(body)
     api_url = "https://tjtest.pugongyinghulian.com/ticket-api/v1/ticket/mintTicketToAddress"
-    header = makeHeader(body)
+    header = makeHeader2(body)
     response = requests.post(api_url, params=body, headers=header)
 
     json = response.json()
     # print(json)
-    if json['msg'] == "成功":
+    if 'msg' in json and json['msg'] == "成功":
         return json['results']
     else:
         console.print(json, style="bold red")   
